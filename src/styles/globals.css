@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/assets/fonts/SF-Pro-Display-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/assets/fonts/SF-Pro-Display-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/assets/fonts/SF-Pro-Display-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Light mode colors */
+    --primary: 284 80% 14%;     /* #2E073F */
+    --accent: 282 72% 39%;      /* #7A1CAC */
+    --light-accent: 282 69% 58%; /* #AD49E1 */
+    --lightest: 282 80% 90%;    /* #EBD3F8 */
+    
+    --background: 0 0% 100%;    /* #FFFFFF */
+    --foreground: 240 6% 20%;   /* #2E2F38 */
+    
+    --card: 282 80% 90%;        /* #EBD3F8 */
+    --card-foreground: 284 80% 14%; /* #2E073F */
+    
+    --muted: 282 30% 90%;       /* lighter version of #EBD3F8 */
+    --muted-foreground: 284 30% 30%; /* lighter version of #2E073F */
+    
+    --border: 282 30% 85%;      /* lighter version of #EBD3F8 */
+    
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode colors */
+    --primary: 284 80% 14%;     /* #2E073F */
+    --accent: 282 72% 39%;      /* #7A1CAC */
+    --light-accent: 282 69% 58%; /* #AD49E1 */
+    --lightest: 282 80% 90%;    /* #EBD3F8 */
+    
+    --background: 284 80% 7%;   /* darker version of #2E073F */
+    --foreground: 0 0% 100%;    /* #FFFFFF */
+    
+    --card: 284 70% 15%;        /* slightly lighter than background */
+    --card-foreground: 0 0% 100%; /* #FFFFFF */
+    
+    --muted: 284 50% 20%;       /* muted purple */
+    --muted-foreground: 282 20% 80%; /* light purple */
+    
+    --border: 284 60% 20%;      /* border color */
+  }
+}
+
+body {
+  @apply bg-background text-foreground;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: 'SF Pro Display', system-ui, sans-serif;
+}
+
+.font-mono, .font-numeric, code, pre {
+  font-family: 'JetBrains Mono', monospace;
+}

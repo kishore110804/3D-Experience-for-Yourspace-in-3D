@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { 
   ArrowLeft, 
-  Upload, 
-  Box, 
+  Upload,  
   Eye, 
   Settings,
   PanelLeft,  
@@ -24,7 +23,7 @@ const DEFAULT_MODEL_PATH = '/assets/models/scene.gltf';
 export function Tool() {
   const [collapsed, setCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState("walkthrough");
-  const [viewMode, setViewMode] = useState("firstPerson");
+  const [viewMode, setViewMode] = useState<"firstPerson" | "topDown">("firstPerson");
   const [isLoading, setIsLoading] = useState(false);
   const [progressValue, setProgressValue] = useState(0);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -589,75 +588,16 @@ export function Tool() {
                     <section className="space-y-3">
                       <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
                         <Settings size={16} className="mr-2" />
-                        Display Settings
+                        Settings
                       </h3>
                       
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm text-[#2E073F] dark:text-[#EBD3F8] mb-1">
-                            Wall Height
-                          </label>
-                          <input 
-                            type="range" 
-                            min="8" 
-                            max="12" 
-                            defaultValue="9"
-                            className="w-full h-2 bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/20 rounded-lg appearance-none cursor-pointer accent-[#7A1CAC]"
-                          />
-                          <div className="flex justify-between text-xs text-[#2E073F]/60 dark:text-[#EBD3F8]/60 mt-1">
-                            <span>8 ft</span>
-                            <span>10 ft</span>
-                            <span>12 ft</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm text-[#2E073F] dark:text-[#EBD3F8] mb-1">
-                            Render Quality
-                          </label>
-                          <select className="w-full p-2 text-sm rounded-lg border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 bg-white dark:bg-[#2E073F] text-[#2E073F] dark:text-[#EBD3F8] focus:outline-none focus:ring-1 focus:ring-[#7A1CAC]">
-                            <option>High (Best visual quality)</option>
-                            <option selected>Medium (Recommended)</option>
-                            <option>Low (Best performance)</option>
-                          </select>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">Auto-place Furniture</span>
-                          <div className="relative inline-block w-10 align-middle select-none">
-                            <input 
-                              type="checkbox" 
-                              id="toggle-auto-furniture" 
-                              className="sr-only peer"
-                              defaultChecked
-                            />
-                            <label 
-                              htmlFor="toggle-auto-furniture"
-                              className="block h-6 overflow-hidden rounded-full bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/20 cursor-pointer peer-checked:bg-[#7A1CAC]"
-                            >
-                              <span className="absolute transform transition-transform duration-200 h-4 w-4 rounded-full bg-white top-1 left-1 peer-checked:translate-x-4"></span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">Save Changes Automatically</span>
-                          <div className="relative inline-block w-10 align-middle select-none">
-                            <input 
-                              type="checkbox" 
-                              id="toggle-auto-save" 
-                              className="sr-only peer"
-                              defaultChecked
-                            />
-                            <label 
-                              htmlFor="toggle-auto-save"
-                              className="block h-6 overflow-hidden rounded-full bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/20 cursor-pointer peer-checked:bg-[#7A1CAC]"
-                            >
-                              <span className="absolute transform transition-transform duration-200 h-4 w-4 rounded-full bg-white top-1 left-1 peer-checked:translate-x-4"></span>
-                            </label>
-                          </div>
-                        </div>
+                      <div className="p-4 rounded-lg bg-[#EBD3F8]/20 dark:bg-[#7A1CAC]/10 text-center">
+                        <p className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">
+                          Your projects are automatically saved when you make changes.
+                        </p>
                       </div>
+                      
+                      {/* Add any real settings here as they become available */}
                     </section>
                   </div>
                 )}
@@ -668,55 +608,33 @@ export function Tool() {
         
         {/* Main 3D view area */}
         <div className="flex-1 relative bg-[#F5F0F9] dark:bg-[#1A0326] flex items-center justify-center overflow-hidden">
-          {/* Display the walkthrough when in first person mode, otherwise show preview image */}
+          {/* Always use WalkthroughViewer and pass the viewMode prop instead of conditionally rendering */}
           {previewImage && !isLoading ? (
-            viewMode === "firstPerson" ? (
-              <WalkthroughViewer modelPath={modelPath} />
-            ) : (
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img 
-                  src={previewImage} 
-                  alt={projectName || "Floor plan"} 
-                  className="max-w-[90%] max-h-[90%] object-contain"
-                />
-                <div className="absolute bottom-6 left-6 bg-white dark:bg-[#2E073F] px-3 py-1 rounded-md text-xs text-[#7A1CAC] font-medium shadow-md">
-                  Top Down View
-                </div>
-              </div>
-            )
+            <WalkthroughViewer 
+              modelPath={modelPath}
+              viewMode={viewMode} 
+            />
           ) : (
             // Show default walkthrough when no image is uploaded
             viewMode === "firstPerson" ? (
-              <WalkthroughViewer modelPath={modelPath} />
+              <WalkthroughViewer 
+                modelPath={modelPath}
+                viewMode="firstPerson"
+              />
             ) : (
               // Placeholder when no image is uploaded and not in first person mode
-              <div className="text-center px-6">
-                <div className="w-32 h-32 bg-[#7A1CAC]/20 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <Box className="h-12 w-12 text-[#7A1CAC]" />
-                </div>
-                <h2 className="text-xl font-bold text-[#2E073F] dark:text-white mb-2">
-                  {isLoading ? "Processing your floor plan..." : "Upload a floor plan to begin"}
-                </h2>
-                <p className="text-sm text-[#2E073F]/70 dark:text-[#EBD3F8]/70 max-w-md">
-                  {isLoading 
-                    ? "We're converting your 2D plan into an interactive 3D model." 
-                    : "Upload your floor plan to see it transformed into an immersive 3D environment you can explore."}
-                </p>
-                <p className="text-sm text-[#7A1CAC] mt-2">
-                  Switch to "First Person" mode to explore the demo environment.
-                </p>
-                
-                {!isLoading && (
-                  <button 
-                    onClick={triggerFileUpload} 
-                    className="mt-6 inline-flex items-center px-4 py-2 rounded-lg bg-[#7A1CAC] text-white text-sm font-medium hover:bg-[#AD49E1] transition-colors"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Floor Plan
-                  </button>
-                )}
-              </div>
+              <WalkthroughViewer 
+                modelPath={modelPath}
+                viewMode="topDown"
+              />
             )
+          )}
+          
+          {/* View mode indicator for top down */}
+          {viewMode === "topDown" && (
+            <div className="absolute bottom-6 left-6 px-3 py-1 text-xs font-medium text-[#7A1CAC] bg-white dark:bg-[#2E073F] rounded-md shadow-md">
+              Top Down View
+            </div>
           )}
           
           {/* Mobile controls for collapsed state */}

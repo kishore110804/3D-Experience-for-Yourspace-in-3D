@@ -5,7 +5,8 @@ import {
   Environment, 
   useGLTF, 
   Stats,
-  Text
+  Text,
+  OrbitControls
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { Keyboard } from 'lucide-react';
@@ -17,12 +18,14 @@ const DEFAULT_MODEL_PATH = '/assets/models/scene.gltf';
 // Define types for props
 interface WalkthroughViewerProps {
   modelPath?: string;
+  viewMode?: "firstPerson" | "topDown";
   showFurniture?: boolean;
   showDimensions?: boolean;
 }
 
 interface SceneProps {
   modelPath: string;
+  viewMode: "firstPerson" | "topDown";
   showFurniture: boolean;
   showDimensions: boolean;
   onProgress: (progress: number) => void;
@@ -43,7 +46,8 @@ interface RoomDimension {
 
 // Main component for 3D walkthrough viewer
 export function WalkthroughViewer({ 
-  modelPath = DEFAULT_MODEL_PATH, 
+  modelPath = DEFAULT_MODEL_PATH,
+  viewMode = "firstPerson",
   showFurniture = true,
   showDimensions = false
 }: WalkthroughViewerProps) {
@@ -80,7 +84,8 @@ export function WalkthroughViewer({
       <ErrorBoundary>
         <Canvas shadows gl={{ antialias: true }} dpr={[1, 2]}>
           <Scene 
-            modelPath={modelPath} 
+            modelPath={modelPath}
+            viewMode={viewMode}
             showFurniture={showFurniture} 
             showDimensions={showDimensions}
             onProgress={setLoadingProgress}
@@ -113,7 +118,7 @@ export function WalkthroughViewer({
       )}
       
       {/* Controls hint overlay */}
-      {isLoaded && showControls && (
+      {isLoaded && showControls && viewMode === "firstPerson" && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-lg p-3 text-white bg-[#2E073F]/80 backdrop-blur-sm">
           <div className="flex items-center gap-2 text-sm">
             <Keyboard size={20} />
@@ -126,14 +131,91 @@ export function WalkthroughViewer({
 }
 
 // 3D Scene component
-function Scene({ modelPath, showFurniture, showDimensions, onProgress, onLoaded }: SceneProps) {
+function Scene({ modelPath, viewMode, showFurniture, showDimensions, onProgress, onLoaded }: SceneProps) {
   const { camera } = useThree();
+  const prevViewMode = useRef(viewMode);
   
-  // Adjust camera position to fit the specific scene.gltf model
+  // Set up camera based on view mode with smooth transition
   useEffect(() => {
-    camera.position.set(0, 1.7, 5); // Position slightly further back to view the scene
-    camera.lookAt(0, 1.7, 0);
-  }, [camera]);
+    if (viewMode === "firstPerson") {
+      // If switching from top-down, animate to first person view
+      if (prevViewMode.current === "topDown") {
+        const startPos = new THREE.Vector3(0, 20, 0);
+        const endPos = new THREE.Vector3(0, 1.7, 5);
+        const startRot = new THREE.Euler(-Math.PI/2, 0, 0);
+        const endRot = new THREE.Euler(0, 0, 0);
+        
+        // Animate position and rotation
+        const duration = 1500; // milliseconds
+        const startTime = Date.now();
+        
+        const animate = () => {
+          const elapsedTime = Date.now() - startTime;
+          const progress = Math.min(elapsedTime / duration, 1);
+          const easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+          
+          // Interpolate position
+          camera.position.lerpVectors(startPos, endPos, easeProgress);
+          
+          // Interpolate rotation
+          const x = startRot.x + (endRot.x - startRot.x) * easeProgress;
+          const y = startRot.y + (endRot.y - startRot.y) * easeProgress;
+          const z = startRot.z + (endRot.z - startRot.z) * easeProgress;
+          camera.rotation.set(x, y, z);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            camera.position.copy(endPos);
+            camera.rotation.copy(endRot);
+            camera.lookAt(0, 1.7, 0);
+          }
+        };
+        
+        animate();
+      } else {
+        // First person camera settings
+        camera.position.set(0, 1.7, 5);
+        camera.lookAt(0, 1.7, 0);
+      }
+    } else if (viewMode === "topDown") {
+      // Top-down camera settings with animation
+      const startPos = camera.position.clone();
+      const endPos = new THREE.Vector3(0, 20, 0);
+      const startRot = camera.rotation.clone();
+      const endRot = new THREE.Euler(-Math.PI/2, 0, 0); // Look straight down
+      
+      // Animate position and rotation
+      const duration = 1500; // milliseconds
+      const startTime = Date.now();
+      
+      const animate = () => {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+        
+        // Interpolate position
+        camera.position.lerpVectors(startPos, endPos, easeProgress);
+        
+        // Interpolate rotation
+        const x = startRot.x + (endRot.x - startRot.x) * easeProgress;
+        const y = startRot.y + (endRot.y - startRot.y) * easeProgress;
+        const z = startRot.z + (endRot.z - startRot.z) * easeProgress;
+        camera.rotation.set(x, y, z);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          camera.position.copy(endPos);
+          camera.rotation.copy(endRot);
+        }
+      };
+      
+      animate();
+    }
+    
+    prevViewMode.current = viewMode;
+  }, [camera, viewMode]);
 
   return (
     <>
@@ -152,20 +234,30 @@ function Scene({ modelPath, showFurniture, showDimensions, onProgress, onLoaded 
       
       {/* Load the 3D model */}
       <Model 
-        path={modelPath} 
+        path={modelPath}
         showFurniture={showFurniture} 
         onProgress={onProgress}
         onLoaded={onLoaded}
       />
       
-      {/* Floor grid for reference - increased size to cover more space */}
+      {/* Floor grid for reference */}
       <gridHelper args={[100, 100, '#AD49E1', '#7A1CAC']} position={[0, 0, 0]} />
       
       {/* Show dimensions if enabled */}
       {showDimensions && <DimensionLabels />}
       
-      {/* First person controls */}
-      <FirstPersonController />
+      {/* Only use first person controls in first person mode */}
+      {viewMode === "firstPerson" ? (
+        <FirstPersonController />
+      ) : (
+        <OrbitControls 
+          enableZoom={true}
+          enablePan={true}
+          enableRotate={false}
+          minDistance={5}
+          maxDistance={50}
+        />
+      )}
       
       {/* Performance stats (only in development) */}
       {process.env.NODE_ENV === 'development' && <Stats />}

@@ -158,8 +158,8 @@ function Scene({ modelPath, showFurniture, showDimensions, onProgress, onLoaded 
         onLoaded={onLoaded}
       />
       
-      {/* Floor grid for reference - scaled to match scene.gltf size */}
-      <gridHelper args={[30, 30, '#AD49E1', '#7A1CAC']} position={[0, 0, 0]} />
+      {/* Floor grid for reference - increased size to cover more space */}
+      <gridHelper args={[100, 100, '#AD49E1', '#7A1CAC']} position={[0, 0, 0]} />
       
       {/* Show dimensions if enabled */}
       {showDimensions && <DimensionLabels />}

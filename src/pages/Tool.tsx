@@ -5,8 +5,7 @@ import {
   Box, 
   Eye, 
   Settings,
-  PanelLeft, 
-  Compass, 
+  PanelLeft,  
   HelpCircle,
   Maximize2,
   RefreshCw,
@@ -37,8 +36,7 @@ export function Tool() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [showFurniture, setShowFurniture] = useState(true);
-  const [showDimensions, setShowDimensions] = useState(false);
+
   const [modelPath, setModelPath] = useState(DEFAULT_MODEL_PATH);
   const modelInputRef = useRef<HTMLInputElement>(null);
   
@@ -440,47 +438,78 @@ export function Tool() {
                 {/* Tab content */}
                 {activeTab === "walkthrough" && (
                   <div className="space-y-6">
-                    {/* File upload section */}
-                    <section className="space-y-3">
+                    {/* Combined upload section with clear OR choice */}
+                    <section className="space-y-4">
                       <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
                         <Upload size={16} className="mr-2" />
-                        Floor Plan Upload
+                        Create Your Project
                       </h3>
                       
-                      <div className="flex flex-col gap-2">
-                        {/* Hidden file input */}
-                        <input 
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleFileUpload}
-                          accept="image/jpeg,image/png,application/pdf"
-                          className="hidden"
-                        />
-                        
-                        {/* Project name input */}
+                      {/* Project name input - SINGLE FIELD */}
+                      <div className="flex gap-2">
                         <input
                           type="text"
                           value={projectName}
                           onChange={(e) => setProjectName(e.target.value)}
-                          placeholder="Project name (optional)"
-                          className="w-full py-2 px-4 border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/30 rounded-lg bg-white dark:bg-[#2E073F]/50 text-[#2E073F] dark:text-white text-sm"
+                          placeholder="Project name"
+                          className="flex-1 py-2 px-4 border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/30 rounded-lg bg-white dark:bg-[#2E073F]/50 text-[#2E073F] dark:text-white text-sm"
                         />
+                      </div>
+                      
+                      <div className="p-3 bg-[#EBD3F8]/20 dark:bg-[#7A1CAC]/10 rounded-lg">
+                        <p className="text-xs text-center text-[#2E073F]/90 dark:text-[#EBD3F8]/90 mb-3">
+                          Upload a floor plan image OR a 3D model to create your project
+                        </p>
                         
-                        <button 
-                          onClick={triggerFileUpload}
-                          className="w-full py-2 px-4 bg-[#7A1CAC] hover:bg-[#AD49E1] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <RefreshCw size={16} className="mr-2 animate-spin" />
-                          ) : (
-                            <Upload size={16} className="mr-2" />
-                          )}
-                          {isLoading ? "Processing..." : "Upload Floor Plan"}
-                        </button>
-                        
-                        <div className="text-xs text-center text-[#2E073F]/60 dark:text-[#EBD3F8]/60">
-                          Supports JPG, PNG, PDF up to 20MB
+                        <div className="flex flex-col gap-3">
+                          {/* Hidden file inputs */}
+                          <input 
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="image/jpeg,image/png,application/pdf"
+                            className="hidden"
+                          />
+                          
+                          <input 
+                            type="file"
+                            ref={modelInputRef}
+                            onChange={handleModelUpload}
+                            accept=".glb,.gltf"
+                            className="hidden"
+                          />
+                          
+                          <button 
+                            onClick={triggerFileUpload}
+                            className="w-full py-2 px-4 bg-[#7A1CAC] hover:bg-[#AD49E1] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <RefreshCw size={16} className="mr-2 animate-spin" />
+                            ) : (
+                              <Upload size={16} className="mr-2" />
+                            )}
+                            {isLoading ? "Processing..." : "Upload Floor Plan"}
+                          </button>
+                          
+                          <div className="flex items-center gap-2">
+                            <div className="h-px flex-1 bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/30"></div>
+                            <span className="text-xs font-medium text-[#2E073F]/60 dark:text-[#EBD3F8]/60">OR</span>
+                            <div className="h-px flex-1 bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/30"></div>
+                          </div>
+                          
+                          <button 
+                            onClick={triggerModelUpload}
+                            className="w-full py-2 px-4 bg-[#7A1CAC] hover:bg-[#AD49E1] text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center border-2 border-[#AD49E1] shadow-md"
+                          >
+                            <FileUp size={16} className="mr-2" />
+                            Upload 3D Model
+                          </button>
+                          
+                          <div className="flex justify-between text-xs text-center text-[#2E073F]/60 dark:text-[#EBD3F8]/60">
+                            <span>Images: JPG, PNG, PDF (max 20MB)</span>
+                            <span>Models: glTF, GLB (max 50MB)</span>
+                          </div>
                         </div>
                       </div>
                       
@@ -501,6 +530,7 @@ export function Tool() {
                         </div>
                       )}
                       
+                      {/* Loading indicator */}
                       {isLoading && (
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs">
@@ -517,143 +547,39 @@ export function Tool() {
                       )}
                     </section>
                     
-                    {/* 3D Model upload section */}
-                    <section className="space-y-3">
-                      <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
-                        <FileUp size={16} className="mr-2" />
-                        3D Model Upload (Optional)
-                      </h3>
-                      
-                      <div className="flex flex-col gap-2">
-                        {/* Hidden file input for 3D models */}
-                        <input 
-                          type="file"
-                          ref={modelInputRef}
-                          onChange={handleModelUpload}
-                          accept=".glb,.gltf"
-                          className="hidden"
-                        />
-                        
-                        <button 
-                          onClick={triggerModelUpload}
-                          className="w-full py-2 px-4 bg-[#7A1CAC]/20 hover:bg-[#7A1CAC]/30 text-[#7A1CAC] rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                        >
-                          <FileUp size={16} className="mr-2" />
-                          Upload 3D Model
-                        </button>
-                        
-                        <div className="text-xs text-center text-[#2E073F]/60 dark:text-[#EBD3F8]/60">
-                          Supports glTF/GLB files up to 50MB
-                        </div>
-                      </div>
-                    </section>
-                    
-                    {/* View controls - only show if we have an image */}
+                    {/* View controls - only showing the view mode */}
                     {previewImage && !isLoading && (
-                      <>
-                        <section className="space-y-3">
-                          <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
-                            <Eye size={16} className="mr-2" />
-                            View Controls
-                          </h3>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">View Mode</span>
-                              <div className="flex border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 rounded-lg overflow-hidden">
-                                <button 
-                                  onClick={() => setViewMode("firstPerson")}
-                                  className={`px-3 py-1 text-xs ${
-                                    viewMode === "firstPerson" 
-                                      ? "bg-[#7A1CAC] text-white" 
-                                      : "bg-transparent text-[#2E073F] dark:text-[#EBD3F8]"
-                                  }`}
-                                >
-                                  First Person
-                                </button>
-                                <button 
-                                  onClick={() => setViewMode("topDown")}
-                                  className={`px-3 py-1 text-xs ${
-                                    viewMode === "topDown" 
-                                      ? "bg-[#7A1CAC] text-white" 
-                                      : "bg-transparent text-[#2E073F] dark:text-[#EBD3F8]"
-                                  }`}
-                                >
-                                  Top Down
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">Show Furniture</span>
-                              <div className="relative inline-block w-10 align-middle select-none">
-                                <input 
-                                  type="checkbox" 
-                                  id="toggle-furniture" 
-                                  className="sr-only peer"
-                                  checked={showFurniture}
-                                  onChange={(e) => setShowFurniture(e.target.checked)}
-                                />
-                                <label 
-                                  htmlFor="toggle-furniture"
-                                  className="block h-6 overflow-hidden rounded-full bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/20 cursor-pointer peer-checked:bg-[#7A1CAC]"
-                                >
-                                  <span className="absolute transform transition-transform duration-200 h-4 w-4 rounded-full bg-white top-1 left-1 peer-checked:translate-x-4"></span>
-                                </label>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-[#2E073F] dark:text-[#EBD3F8]">Show Dimensions</span>
-                              <div className="relative inline-block w-10 align-middle select-none">
-                                <input 
-                                  type="checkbox" 
-                                  id="toggle-dimensions" 
-                                  className="sr-only peer"
-                                  checked={showDimensions}
-                                  onChange={(e) => setShowDimensions(e.target.checked)}
-                                />
-                                <label 
-                                  htmlFor="toggle-dimensions"
-                                  className="block h-6 overflow-hidden rounded-full bg-[#EBD3F8]/30 dark:bg-[#7A1CAC]/20 cursor-pointer peer-checked:bg-[#7A1CAC]"
-                                >
-                                  <span className="absolute transform transition-transform duration-200 h-4 w-4 rounded-full bg-white top-1 left-1 peer-checked:translate-x-4"></span>
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </section>
+                      <section className="space-y-3">
+                        <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
+                          <Eye size={16} className="mr-2" />
+                          View Mode
+                        </h3>
                         
-                        <section className="space-y-3">
-                          <h3 className="text-sm font-semibold text-[#2E073F] dark:text-white flex items-center">
-                            <Compass size={16} className="mr-2" />
-                            Navigation
-                          </h3>
-                          
-                          <div className="grid grid-cols-3 gap-2 text-center">
-                            <button className="p-2 rounded-lg border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 hover:bg-[#EBD3F8]/10 text-[#2E073F] dark:text-[#EBD3F8]">
-                              <div className="mb-1 flex justify-center">
-                                <Box size={16} />
-                              </div>
-                              <span className="text-xs">Kitchen</span>
+                        <div className="flex justify-center">
+                          <div className="flex border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 rounded-lg overflow-hidden">
+                            <button 
+                              onClick={() => setViewMode("firstPerson")}
+                              className={`px-5 py-2 text-sm ${
+                                viewMode === "firstPerson" 
+                                  ? "bg-[#7A1CAC] text-white" 
+                                  : "bg-transparent text-[#2E073F] dark:text-[#EBD3F8]"
+                              }`}
+                            >
+                              First Person
                             </button>
-                            
-                            <button className="p-2 rounded-lg border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 hover:bg-[#EBD3F8]/10 text-[#2E073F] dark:text-[#EBD3F8]">
-                              <div className="mb-1 flex justify-center">
-                                <Box size={16} />
-                              </div>
-                              <span className="text-xs">Living Room</span>
-                            </button>
-                            
-                            <button className="p-2 rounded-lg border border-[#EBD3F8]/30 dark:border-[#7A1CAC]/20 hover:bg-[#EBD3F8]/10 text-[#2E073F] dark:text-[#EBD3F8]">
-                              <div className="mb-1 flex justify-center">
-                                <Box size={16} />
-                              </div>
-                              <span className="text-xs">Bedroom</span>
+                            <button 
+                              onClick={() => setViewMode("topDown")}
+                              className={`px-5 py-2 text-sm ${
+                                viewMode === "topDown" 
+                                  ? "bg-[#7A1CAC] text-white" 
+                                  : "bg-transparent text-[#2E073F] dark:text-[#EBD3F8]"
+                              }`}
+                            >
+                              Top Down
                             </button>
                           </div>
-                        </section>
-                      </>
+                        </div>
+                      </section>
                     )}
                   </div>
                 )}
@@ -745,11 +671,7 @@ export function Tool() {
           {/* Display the walkthrough when in first person mode, otherwise show preview image */}
           {previewImage && !isLoading ? (
             viewMode === "firstPerson" ? (
-              <WalkthroughViewer 
-                modelPath={modelPath} 
-                showFurniture={showFurniture} 
-                showDimensions={showDimensions}
-              />
+              <WalkthroughViewer modelPath={modelPath} />
             ) : (
               <div className="relative w-full h-full flex items-center justify-center">
                 <img 
@@ -765,11 +687,7 @@ export function Tool() {
           ) : (
             // Show default walkthrough when no image is uploaded
             viewMode === "firstPerson" ? (
-              <WalkthroughViewer 
-                modelPath={modelPath} 
-                showFurniture={showFurniture} 
-                showDimensions={showDimensions}
-              />
+              <WalkthroughViewer modelPath={modelPath} />
             ) : (
               // Placeholder when no image is uploaded and not in first person mode
               <div className="text-center px-6">

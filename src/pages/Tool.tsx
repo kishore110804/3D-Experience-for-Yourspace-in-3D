@@ -10,7 +10,8 @@ import {
   RefreshCw,
   X,
   Save,
-  FileUp
+  FileUp,
+  Minimize2
 } from "lucide-react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
@@ -213,87 +214,127 @@ export function Tool() {
     }
   };
 
-  // Handle 3D model upload
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+  const [modelUploadError, setModelUploadError] = useState<string | null>(null);
+
+  // Handle fullscreen toggling - helps with Pointer Lock API issues
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      if (fullscreenRef.current?.requestFullscreen) {
+        fullscreenRef.current.requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(err => console.error(`Error enabling fullscreen: ${err.message}`));
+      }
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+          .then(() => setIsFullscreen(false))
+          .catch(err => console.error(`Error exiting fullscreen: ${err.message}`));
+      }
+    }
+  };
+
+  // Listen for fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // Enhanced model upload handler with better error handling
   const handleModelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    setModelUploadError(null);
+    
     // File validation
-    const validTypes = ['model/gltf-binary', 'model/gltf+json'];
     const maxSize = 50 * 1024 * 1024; // 50MB
     
-    if (!validTypes.includes(file.type) && 
-        !file.name.endsWith('.glb') && 
-        !file.name.endsWith('.gltf')) {
-      alert("Invalid file type. Please upload a glTF/GLB file.");
+    // Accept files regardless of MIME type if they have the right extension
+    if (!file.name.toLowerCase().endsWith('.glb') && !file.name.toLowerCase().endsWith('.gltf')) {
+      setModelUploadError("Invalid file type. Please upload a glTF/GLB file.");
       return;
     }
     
     if (file.size > maxSize) {
-      alert("File is too large. Maximum size is 50MB.");
+      setModelUploadError("File is too large. Maximum size is 50MB.");
       return;
     }
     
     // Create a URL for the uploaded file for immediate preview
-    const objectUrl = URL.createObjectURL(file);
-    setModelPath(objectUrl);
-    
-    // If projectName is empty, use file name without extension
-    if (!projectName) {
-      const fileName = file.name.split('.').slice(0, -1).join('.');
-      setProjectName(fileName || "New 3D Model");
-    }
-    
-    // Upload to Firebase if user is logged in and we have a project ID
-    if (currentUser) {
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      setModelPath(objectUrl);
+      
+      // If projectName is empty, use file name without extension
+      if (!projectName) {
+        const fileName = file.name.split('.').slice(0, -1).join('.');
+        setProjectName(fileName || "New 3D Model");
+      }
+      
+      // Start processing
       setIsLoading(true);
       startLoading();
       
-      try {
-        // If we don't have a project yet, create one first
-        if (!currentProject?.id) {
-          // Create a basic project first to get an ID
-          const projectData = {
-            name: projectName || "New 3D Model",
-            previewUrl: previewImage || "",
-            originalImageUrl: previewImage || "",
-          };
-          
-          const newProject = await saveProject(projectData);
-          if (newProject) {
-            setCurrentProject(newProject);
+      // Upload to Firebase if user is logged in and we have a project ID
+      if (currentUser) {
+        try {
+          // If we don't have a project yet, create one first
+          if (!currentProject?.id) {
+            // Create a basic project first to get an ID
+            const projectData = {
+              name: projectName || "New 3D Model",
+              previewUrl: previewImage || "",
+              originalImageUrl: previewImage || "",
+            };
             
-            // Now upload the 3D model using the new project ID
-            const modelUrl = await upload3DModel(file, newProject.id);
+            const newProject = await saveProject(projectData);
+            if (newProject) {
+              setCurrentProject(newProject);
+              
+              // Now upload the 3D model using the new project ID
+              const modelUrl = await upload3DModel(file, newProject.id);
+              
+              // Update the project with the model URL
+              if (modelUrl) {
+                const updatedProject = await saveProject({ modelUrl }, newProject.id);
+                if (updatedProject) {
+                  setCurrentProject(updatedProject);
+                }
+              }
+              
+              // Update URL with new project ID
+              navigate(`/tool?project=${newProject.id}`, { replace: true });
+            }
+          } else {
+            // If we already have a project, just add the model to it
+            const modelUrl = await upload3DModel(file, currentProject.id);
             
-            // Update the project with the model URL
+            // Update project with the model URL
             if (modelUrl) {
-              const updatedProject = await saveProject({ modelUrl }, newProject.id);
+              const updatedProject = await saveProject({ modelUrl }, currentProject.id);
               if (updatedProject) {
                 setCurrentProject(updatedProject);
               }
             }
-            
-            // Update URL with new project ID
-            navigate(`/tool?project=${newProject.id}`, { replace: true });
           }
-        } else {
-          // If we already have a project, just add the model to it
-          const modelUrl = await upload3DModel(file, currentProject.id);
-          
-          // Update project with the model URL
-          if (modelUrl) {
-            const updatedProject = await saveProject({ modelUrl }, currentProject.id);
-            if (updatedProject) {
-              setCurrentProject(updatedProject);
-            }
-          }
+        } catch (error) {
+          console.error("Error uploading 3D model to Firebase:", error);
+          setModelUploadError("Error uploading 3D model. Please try again.");
         }
-      } catch (error) {
-        console.error("Error uploading 3D model to Firebase:", error);
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      console.error("Error creating object URL:", error);
+      setModelUploadError("Error processing 3D model. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -309,6 +350,8 @@ export function Tool() {
       }
     };
   }, [modelPath]);
+
+
 
   return (
     <div className="h-screen flex flex-col bg-[#F9F6FC] dark:bg-[#1F042C] overflow-hidden">
@@ -607,7 +650,10 @@ export function Tool() {
         </motion.div>
         
         {/* Main 3D view area */}
-        <div className="flex-1 relative bg-[#F5F0F9] dark:bg-[#1A0326] flex items-center justify-center overflow-hidden">
+        <div 
+          ref={fullscreenRef}
+          className="flex-1 relative bg-[#F5F0F9] dark:bg-[#1A0326] flex items-center justify-center overflow-hidden"
+        >
           {/* Always use WalkthroughViewer and pass the viewMode prop instead of conditionally rendering */}
           {previewImage && !isLoading ? (
             <WalkthroughViewer 
@@ -616,18 +662,10 @@ export function Tool() {
             />
           ) : (
             // Show default walkthrough when no image is uploaded
-            viewMode === "firstPerson" ? (
-              <WalkthroughViewer 
-                modelPath={modelPath}
-                viewMode="firstPerson"
-              />
-            ) : (
-              // Placeholder when no image is uploaded and not in first person mode
-              <WalkthroughViewer 
-                modelPath={modelPath}
-                viewMode="topDown"
-              />
-            )
+            <WalkthroughViewer 
+              modelPath={modelPath}
+              viewMode={viewMode}
+            />
           )}
           
           {/* View mode indicator for top down */}
@@ -637,7 +675,29 @@ export function Tool() {
             </div>
           )}
           
-          {/* Mobile controls for collapsed state */}
+          {/* Fullscreen button - REPOSITIONED TO BOTTOM */}
+          <button 
+            onClick={toggleFullscreen}
+            className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-white dark:bg-[#2E073F] text-[#7A1CAC] flex items-center justify-center shadow-md hover:bg-[#EBD3F8]/30 dark:hover:bg-[#7A1CAC]/20"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+          </button>
+          
+          {/* Upload error message */}
+          {modelUploadError && (
+            <div className="absolute top-16 right-4 bg-red-500 text-white p-2 rounded-md shadow-md text-sm">
+              {modelUploadError}
+              <button 
+                onClick={() => setModelUploadError(null)}
+                className="ml-2 text-white"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          
+          {/* Mobile controls for collapsed state - ADJUSTED POSITION TO AVOID OVERLAP */}
           {isMobile && collapsed && !isLoading && (
             <div className="absolute bottom-24 right-6 flex flex-col gap-2">
               <button 
@@ -648,13 +708,6 @@ export function Tool() {
               </button>
             </div>
           )}
-          
-          {/* Controls overlay */}
-          <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-            <button className="w-10 h-10 rounded-full bg-white dark:bg-[#2E073F] text-[#7A1CAC] flex items-center justify-center shadow-md hover:bg-[#EBD3F8]/30 dark:hover:bg-[#7A1CAC]/20">
-              <Maximize2 size={20} />
-            </button>
-          </div>
         </div>
         
         {/* Mobile quick save button */}

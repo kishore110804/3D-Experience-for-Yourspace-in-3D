@@ -283,6 +283,18 @@ export function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Attribution footer */}
+      <footer className="py-4 bg-[#F9F6FC] dark:bg-[#1F042C] text-center text-sm text-gray-600 dark:text-gray-400">
+        <a 
+          href="https://www.linkedin.com/in/nkishorebusiness" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-[#7A1CAC] dark:hover:text-[#AD49E1] transition-colors"
+        >
+          Application made by Kishore
+        </a>
+      </footer>
     </div>
   )
 }

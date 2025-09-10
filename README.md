@@ -1,4 +1,4 @@
-# 3D Floor Plan Visualization Platform
+# 3D First person view, Walkthrough
 
 ## Overview
 

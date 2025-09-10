@@ -10,27 +10,27 @@ A comprehensive web-based 3D visualization platform that transforms static floor
   <table>
     <tr>
       <td align="center">
-        <img src="assets/1.png" width="400" alt="Main Interface"/>
+        <img src="src/assets/1.png" width="400" alt="Main Interface"/>
         <br><strong>Generic model</strong>
       </td>
       <td align="center">
-        <img src="assets/2.png" width="400" alt="Upload Interface"/>
+        <img src="src/assets/2.png" width="400" alt="Upload Interface"/>
         <br><strong>New model with roof in script</strong>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="assets/4.png" width="400" alt="First Person View"/>
+        <img src="src/assets/4.png" width="400" alt="First Person View"/>
         <br><strong>First Person Walkthrough doors</strong>
       </td>
       <td align="center">
-        <img src="6.png" width="400" alt="Top Down View"/>
+        <img src="src/assets/6.png" width="400" alt="Top Down View"/>
         <br><strong>Landing</strong>
       </td>
     </tr>
     <tr>
       <td align="center" colspan="2">
-        <img src="assets/7.png" width="400" alt="Model Rotation"/>
+        <img src="src/assets/7.png" width="400" alt="Model Rotation"/>
         <br><strong>Demo fallback</strong>
       </td>
     </tr>

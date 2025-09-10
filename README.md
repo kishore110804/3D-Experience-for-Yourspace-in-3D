@@ -1,12 +1,41 @@
 # 3D Floor Plan Visualization Platform
 
-**Live Demo:** [https://poppppsss.web.app/](https://poppppsss.web.app/)
-
-![3D Floor Plan Visualization Platform](./screenshot%202025-01-03%20144549.png)
-
 ## Overview
 
 A comprehensive web-based 3D visualization platform that transforms static floor plans and architectural models into immersive, navigable virtual environments. Built with modern web technologies, this application enables users to upload floor plan images or 3D models and experience them through realistic first-person walkthrough navigation or strategic top-down perspectives.
+
+## Application Screenshots
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="assets/screenshot-main.png" width="400" alt="Main Interface"/>
+        <br><strong>Main Interface</strong>
+      </td>
+      <td align="center">
+        <img src="assets/upload-interface.png" width="400" alt="Upload Interface"/>
+        <br><strong>Upload Interface</strong>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="assets/first-person-view.png" width="400" alt="First Person View"/>
+        <br><strong>First Person Walkthrough</strong>
+      </td>
+      <td align="center">
+        <img src="assets/top-down-view.png" width="400" alt="Top Down View"/>
+        <br><strong>Top Down Overview</strong>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <img src="assets/model-rotation.png" width="400" alt="Model Rotation"/>
+        <br><strong>Interactive Model Rotation</strong>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## Core Features
 
@@ -155,3 +184,8 @@ This project is developed for educational and demonstration purposes.
 **Application developed by Kishore** - [LinkedIn Profile](https://www.linkedin.com/in/nkishorebusiness)
 
 Built with modern web technologies to demonstrate the capabilities of browser-based 3D visualization without requiring specialized software or plugins.
+
+## Links
+
+- **Live Demo:** [https://poppppsss.web.app/](https://poppppsss.web.app/)
+- **Developer Portfolio:** [https://kishoresdevportfolio.web.app/](https://kishoresdevportfolio.web.app/)

@@ -10,28 +10,28 @@ A comprehensive web-based 3D visualization platform that transforms static floor
   <table>
     <tr>
       <td align="center">
-        <img src="assets/screenshot-main.png" width="400" alt="Main Interface"/>
-        <br><strong>Main Interface</strong>
+        <img src="assets/1.png" width="400" alt="Main Interface"/>
+        <br><strong>Generic model</strong>
       </td>
       <td align="center">
-        <img src="assets/upload-interface.png" width="400" alt="Upload Interface"/>
-        <br><strong>Upload Interface</strong>
+        <img src="assets/2.png" width="400" alt="Upload Interface"/>
+        <br><strong>New model with roof in script</strong>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="assets/first-person-view.png" width="400" alt="First Person View"/>
-        <br><strong>First Person Walkthrough</strong>
+        <img src="assets/4.png" width="400" alt="First Person View"/>
+        <br><strong>First Person Walkthrough doors</strong>
       </td>
       <td align="center">
-        <img src="assets/top-down-view.png" width="400" alt="Top Down View"/>
-        <br><strong>Top Down Overview</strong>
+        <img src="6.png" width="400" alt="Top Down View"/>
+        <br><strong>Landing</strong>
       </td>
     </tr>
     <tr>
       <td align="center" colspan="2">
-        <img src="assets/model-rotation.png" width="400" alt="Model Rotation"/>
-        <br><strong>Interactive Model Rotation</strong>
+        <img src="assets/7.png" width="400" alt="Model Rotation"/>
+        <br><strong>Demo fallback</strong>
       </td>
     </tr>
   </table>
